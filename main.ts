@@ -402,7 +402,7 @@ export default class LoomPlugin extends Plugin {
         if (panes.length === 0)
           this.app.workspace.getRightLeaf(false)?.setViewState({ type });
         else if (focus) this.app.workspace.revealLeaf(panes[0]);
-      } catch (e) {} // expect "TypeError: Cannot read properties of null (reading 'children')"
+      } catch (e) { } // expect "TypeError: Cannot read properties of null (reading 'children')"
     };
     const openLoomPane = (focus: boolean) => openPane("loom", focus);
     const openLoomSiblingsPane = (focus: boolean) =>
@@ -824,8 +824,8 @@ export default class LoomPlugin extends Plugin {
       this.app.workspace.on("loom:toggle-collapse", (id: string) =>
         this.wftsar(
           (file) =>
-            (this.state[file.path].nodes[id].collapsed =
-              !this.state[file.path].nodes[id].collapsed)
+          (this.state[file.path].nodes[id].collapsed =
+            !this.state[file.path].nodes[id].collapsed)
         )
       )
     );
@@ -849,8 +849,8 @@ export default class LoomPlugin extends Plugin {
       this.app.workspace.on("loom:toggle-bookmark", (id: string) =>
         this.wftsar(
           (file) =>
-            (this.state[file.path].nodes[id].bookmarked =
-              !this.state[file.path].nodes[id].bookmarked)
+          (this.state[file.path].nodes[id].bookmarked =
+            !this.state[file.path].nodes[id].bookmarked)
         )
       )
     );
@@ -1418,26 +1418,25 @@ export default class LoomPlugin extends Plugin {
     const result: CompletionResult =
       response.statusCode === 200
         ? {
-            ok: true,
-            completions: response.body.generations.map(
-              (generation) => generation.text
-            ),
-          }
+          ok: true,
+          completions: response.body.generations.map(
+            (generation) => generation.text
+          ),
+        }
         :
-          {
-            ok: false,
-            status: response.statusCode!,
-            // @ts-expect-error
-            message: response.body.message,
-          };
+        {
+          ok: false,
+          status: response.statusCode!,
+          // @ts-expect-error
+          message: response.body.message,
+        };
     return result;
   }
 
   async completeTextSynth(prompt: string) {
     const response = await requestUrl({
-      url: `https://api.textsynth.com/v1/engines/${
-        getPreset(this.settings).model
-      }/completions`,
+      url: `https://api.textsynth.com/v1/engines/${getPreset(this.settings).model
+        }/completions`,
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1559,11 +1558,11 @@ export default class LoomPlugin extends Plugin {
     const result: CompletionResult =
       response.status === 200
         ? {
-            ok: true,
-            completions: response.json.choices.map(
-              (choice: any) => choice.text
-            ),
-          }
+          ok: true,
+          completions: response.json.choices.map(
+            (choice: any) => choice.text
+          ),
+        }
         : { ok: false, status: response.status, message: "" };
     return result;
   }
@@ -1579,10 +1578,13 @@ export default class LoomPlugin extends Plugin {
       temperature: this.settings.temperature,
       top_p: this.settings.topP,
       best_of: this.settings.bestOf,
-      provider: {
+      provider:
         // @ts-expect-error
-        quantizations: [getPreset(this.settings).quantization]
-      }
+        getPreset(this.settings).quantization ?
+          { // @ts-expect-error
+            quantizations: [getPreset(this.settings).quantization]
+          } :
+          {}
     };
     if (this.settings.frequencyPenalty !== 0)
       body.frequency_penalty = this.settings.frequencyPenalty;
@@ -1608,14 +1610,14 @@ export default class LoomPlugin extends Plugin {
 
     const result: CompletionResult = responses.every(response => !response.json.hasOwnProperty('error'))
       ? {
-          ok: true,
-          completions: responses.map(response => response.json.choices[0].text),
-        }
+        ok: true,
+        completions: responses.map(response => response.json.choices[0].text),
+      }
       : {
-          ok: false,
-          status: responses[0].json.error.code,
-          message: responses[0].json.error.message,
-        };
+        ok: false,
+        status: responses[0].json.error.code,
+        message: responses[0].json.error.message,
+      };
     return result;
   }
 
@@ -1944,7 +1946,7 @@ class LoomSettingTab extends PluginSettingTab {
           ].provider = "openai-compat";
           this.plugin.settings.modelPresets[
             this.plugin.settings.modelPreset
-          // @ts-expect-error
+            // @ts-expect-error
           ].url = "https://api.hyperbolic.xyz";
           this.plugin.settings.modelPresets[
             this.plugin.settings.modelPreset
@@ -1960,7 +1962,7 @@ class LoomSettingTab extends PluginSettingTab {
           ].provider = "openrouter";
           this.plugin.settings.modelPresets[
             this.plugin.settings.modelPreset
-          // @ts-expect-error
+            // @ts-expect-error
           ].quantization = "bf16";
           this.plugin.settings.modelPresets[
             this.plugin.settings.modelPreset
@@ -2245,13 +2247,13 @@ class LoomSettingTab extends PluginSettingTab {
             .setValue(
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].organization
             )
             .onChange(async (value) => {
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].organization = value;
               await this.plugin.save();
             })
@@ -2269,13 +2271,13 @@ class LoomSettingTab extends PluginSettingTab {
             .setValue(
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].url
             )
             .onChange(async (value) => {
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].url = value;
               await this.plugin.save();
             })
@@ -2290,18 +2292,19 @@ class LoomSettingTab extends PluginSettingTab {
               fp16: "fp16",
               fp8: "fp8",
               int8: "int8",
-              int4: "int4"
+              int4: "int4",
+              none: "",
             })
             .setValue(
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].quantization
             )
             .onChange(async (value) => {
               this.plugin.settings.modelPresets[
                 this.plugin.settings.modelPreset
-              // @ts-expect-error TODO
+                // @ts-expect-error TODO
               ].quantization = value;
               await this.plugin.save();
             })
@@ -2316,9 +2319,8 @@ class LoomSettingTab extends PluginSettingTab {
         const isActive = this.plugin.settings.modelPreset === parseInt(i);
 
         const presetContainer = presetList.createDiv({
-          cls: `loom__preset is-clickable outgoing-link-item tree-item-self${
-            isActive ? " is-active" : ""
-          }`,
+          cls: `loom__preset is-clickable outgoing-link-item tree-item-self${isActive ? " is-active" : ""
+            }`,
         });
         presetContainer.addEventListener("click", () =>
           selectPreset(parseInt(i))
